@@ -11,21 +11,43 @@ import sys
 import scipy as sp
 import scipy.special as sps
 import scipy.constants as spc
+from decimal import *
 
 
 class Cutoff:
-    def __init__(self, radius):
-        self.radius = radius
+    CC = 299792458
 
-    def __call__(self):
-        return (sps.jnyn_zeros(1, 1)[1] * spc.c / 2 / sp.pi / self.radius)[0]
+    def __init__(self, type, dimension):
+        self.dimension = dimension
+        self.type = str(type)
+        if self.type.lower() == 'r':
+            self.frequency = self.get_frequency_circular()
+
+        elif self.type.lower() == 'w':
+            self.frequency = self.get_frequency_rectangular()
+
+        else:
+            print('Type not recognised.')
 
     def __str__(self):
-        return "Cutoff frequency is: {} Hz.".format(self.__call__())
+        strng = "Cutoff frequency is: {} Hz.\n".format(
+            self.frequency) + "Cutoff wavelength in freespace is: {} m.".format(
+            self.get_wavelength(self.frequency))
+
+        return strng
+
+    def get_frequency_rectangular(self):
+        return Cutoff.CC / 2 / self.dimension
+
+    def get_frequency_circular(self):
+        return (sps.jnyn_zeros(1, 1)[1] * spc.c / 2 / sp.pi / self.dimension)[0]
+
+    def get_wavelength(self, freq):
+        return Cutoff.CC / freq
 
 
 if __name__ == "__main__":
-    if (len(sys.argv) == 2):
-        print(Cutoff(float(sys.argv[1])))
+    if (len(sys.argv) == 3):
+        print(Cutoff(sys.argv[1], float(sys.argv[2])))
     else:
-        print('Please provide a radius in meters!')
+        print('Please provide radius (r) or width (w) in meters!')
