@@ -121,6 +121,16 @@ def get_q(filename):
     plt.legend(loc="lower right", fontsize=8)
     plt.title("File: {}".format(filename_wo_ext))
     print('Plotting to file.')
+    txt = 'Qu={:0.0f}, Ql={:0.0f}\n∆fu={:0.3f} [MHz]\nbeta={:.3f}'.format(
+        Qu, Ql, delta_f_u, beta)
+    plt.text(0, 0.6, txt, size=10, rotation=0,
+             ha="left", va="top",
+             bbox=dict(boxstyle="square",
+                       ec=(1., 0.5, 0.5),
+                       fc=(1., 0.8, 0.8),
+                       )
+             )
+
     plt.savefig("{}.pdf".format(filename_wo_ext),
                 format="pdf")  # , bbox_inches="tight")
 
