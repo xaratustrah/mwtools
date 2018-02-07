@@ -2,24 +2,11 @@
 # -*- coding: utf-8 -*-
 
 """
-Get the Q from S11 touchstone format
+Get Q values from S11 touchstone format
+or any other complex vector format
 
 Xaratustrah 2017
 
-
-touch stone format:
-freq, real, imaginary
-comma seperated values
-S11 data is centered on the resonance frequency
-
-Data format:
- HZ   S   RI   R     50.0
-! Rohde & Schwarz ZVL
-!
-!
-!
-4.021237600000000E8    -6.366180130598420E-1  -7.604446991938126E-1
-...
 """
 
 import matplotlib.pyplot as plt
@@ -29,16 +16,32 @@ import sys
 import os
 
 
-def get_q(filename):
-    file_basename = os.path.basename(filename)
-    filename_wo_ext = os.path.splitext(filename)[0]
+def read_touchstone(filename):
+    """
+    touch stone format:
+    freq, real, imaginary
+    comma seperated values
+    S11 data is centered on the resonance frequency
+
+    Data format:
+     HZ   S   RI   R     50.0
+    ! Rohde & Schwarz ZVL
+    !
+    !
+    !
+    4.021237600000000E8    -6.366180130598420E-1  -7.604446991938126E-1
+    ...
+    """
 
     # ignore the first 5 header lines
     sri = np.genfromtxt(filename, skip_header=5)
 
     freqs = sri[:, 0] / 1e6
     cplx = np.vectorize(complex)(sri[:, 1], sri[:, 2])
+    return freqs, cplx
 
+
+def get_q_values(freqs, cplx, filename_wo_ext):
     # find resonant frequency
     idx_res = np.argmin(np.abs(cplx))
     f_res = freqs[idx_res]
@@ -131,15 +134,19 @@ def get_q(filename):
                        )
              )
 
-    plt.savefig("{}.pdf".format(filename_wo_ext),
-                format="pdf")  # , bbox_inches="tight")
-
-
-def main():
-    get_q(sys.argv[1])
+    plt.savefig("{}.png".format(filename_wo_ext),
+                format="png",
+                dpi=1200,
+                bbox_inches="tight",)
 
 
 # ------------------------
 
 if __name__ == '__main__':
-    main()
+
+    filename = sys.argv[1]
+    file_basename = os.path.basename(filename)
+    filename_wo_ext = os.path.splitext(filename)[0]
+
+    ff, cc = read_touchstone(filename)
+    get_q_values(ff, cc, filename_wo_ext)
