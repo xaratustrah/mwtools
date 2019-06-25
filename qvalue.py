@@ -7,6 +7,9 @@ or any other complex vector format
 
 Xaratustrah 2017
 
+
+Skye 2019
+Xaratustrah 2019
 """
 
 import matplotlib.pyplot as plt
@@ -52,6 +55,8 @@ def get_q_values(freqs, cplx, filename_wo_ext):
     rotation = (np.angle(cplx[idx_min]) + np.angle(cplx[idx_max])) / 2
 
     # find the detuned short position
+    # Ae^(jphi-rot) = Acos(phi-rot) + jAsin(phi-rot)
+
     real_shifted = np.abs(cplx) * np.cos(np.angle(cplx) - rotation)
     imag_shifted = np.abs(cplx) * np.sin(np.angle(cplx) - rotation)
     cplx_shifted = np.vectorize(complex)(real_shifted, imag_shifted)
@@ -59,18 +64,26 @@ def get_q_values(freqs, cplx, filename_wo_ext):
     impz_shifted = (1 + cplx_shifted) / (1 - cplx_shifted) * 50
 
     # find detuned open position
-    real_dop = np.abs(cplx_shifted) * np.cos(np.angle(cplx_shifted) - np.pi)
-    imag_dop = np.abs(cplx_shifted) * np.sin(np.angle(cplx_shifted) - np.pi)
-    cplx_dop = np.vectorize(complex)(real_dop, imag_dop)
-    impz_dop = (1 + cplx_dop) / (1 - cplx_dop) * 50
+    # real_dop = np.abs(cplx_shifted) * np.cos(np.angle(cplx_shifted) - np.pi)
+    # imag_dop = np.abs(cplx_shifted) * np.sin(np.angle(cplx_shifted) - np.pi)
+    # cplx_dop = np.vectorize(complex)(real_dop, imag_dop)
+    # impz_dop = (1 + cplx_dop) / (1 - cplx_dop) * 50
 
     # find the index of the point where Re(Z) = |Im(Z)| left of the resonance and call it f5
-    f5 = freqs[np.argmin(np.abs(np.real(impz_shifted)[:idx_res] -
-                                np.abs(np.imag(impz_shifted)[:idx_res])))]
+    f5 = freqs[np.argmin(np.abs(
+        np.abs(np.real(impz_shifted)[idx_res - 200: idx_res]) -
+        np.abs(np.imag(impz_shifted)[idx_res - 200: idx_res])
+    )
+    )
+        + idx_res - 200]
 
     # find the index of the point where Re(Z) = |Im(Z)| right of the resonance and call it f6
-    f6 = freqs[np.argmin(np.abs(np.real(impz_shifted)[idx_res:] -
-                                np.abs(np.imag(impz_shifted)[idx_res:]))) + idx_res]
+    f6 = freqs[np.argmin(np.abs(
+        np.abs(np.real(impz_shifted)[idx_res: idx_res + 200]) -
+        np.abs(np.imag(impz_shifted)[idx_res: idx_res + 200])
+    )
+    )
+        + idx_res]
 
     # These are the point needed for the unloaded Q
     delta_f_u = np.abs(f5 - f6)
@@ -119,8 +132,8 @@ def get_q_values(freqs, cplx, filename_wo_ext):
              datatype=SmithAxes.S_PARAMETER)
     plt.plot(cplx_shifted, markevery=10, label='Detuned short position',
              datatype=SmithAxes.S_PARAMETER)
-    plt.plot(cplx_dop, markevery=10, label='Detuned open position',
-             datatype=SmithAxes.S_PARAMETER)
+    # plt.plot(cplx_dop, markevery=10, label='Detuned open position',
+    #         datatype=SmithAxes.S_PARAMETER)
     plt.legend(loc="lower right", fontsize=8)
     plt.title("File: {}".format(filename_wo_ext))
     print('Plotting to file.')
