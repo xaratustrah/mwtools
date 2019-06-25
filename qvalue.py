@@ -44,7 +44,10 @@ def read_touchstone(filename):
     return freqs, cplx
 
 
-def get_q_values(freqs, cplx, filename_wo_ext):
+def get_q_values(freqs, cplx, filename):
+    file_basename = os.path.basename(filename)
+    filename_wo_ext = os.path.splitext(filename)[0]
+
     # find resonant frequency
     idx_res = np.argmin(np.abs(cplx))
     f_res = freqs[idx_res]
@@ -135,8 +138,8 @@ def get_q_values(freqs, cplx, filename_wo_ext):
     # plt.plot(cplx_dop, markevery=10, label='Detuned open position',
     #         datatype=SmithAxes.S_PARAMETER)
     plt.legend(loc="lower right", fontsize=8)
-    plt.title("File: {}".format(filename_wo_ext))
-    print('Plotting to file.')
+    plt.title(file_basename)
+    print('Plotting to file {}.png'.format(filename_wo_ext))
     txt = 'Qu={:0.0f}, Ql={:0.0f}\n∆fu={:0.3f} [MHz]\nf_res={:0.3f} [MHz]\nbeta={:.3f}'.format(
         Qu, Ql, delta_f_u, f_res, beta)
     plt.text(0, 0.6, txt, size=9, rotation=0,
@@ -149,17 +152,16 @@ def get_q_values(freqs, cplx, filename_wo_ext):
 
     plt.savefig("{}.png".format(filename_wo_ext),
                 format="png",
-                dpi=1200,
+                dpi=600,
                 bbox_inches="tight",)
 
+    plt.clf()
 
 # ------------------------
 
+
 if __name__ == '__main__':
-
-    filename = sys.argv[1]
-    file_basename = os.path.basename(filename)
-    filename_wo_ext = os.path.splitext(filename)[0]
-
-    ff, cc = read_touchstone(filename)
-    get_q_values(ff, cc, filename_wo_ext)
+    for filename in sys.argv[1:]:
+        print('Filename: ', filename)
+        ff, cc = read_touchstone(filename)
+        get_q_values(ff, cc, filename)
