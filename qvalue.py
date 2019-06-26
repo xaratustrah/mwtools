@@ -53,15 +53,19 @@ def get_q_values(freqs, cplx, filename):
     f_res = freqs[idx_res]
 
     # determine the rotation angle from the offset for detuned short location
-    idx_max = np.argmin(np.abs(cplx)) + 100
-    idx_min = np.argmin(np.abs(cplx)) - 100
+    idx_max = np.argmin(np.abs(cplx)) + 50
+    idx_min = np.argmin(np.abs(cplx)) - 50
     rotation = (np.angle(cplx[idx_min]) + np.angle(cplx[idx_max])) / 2
 
     # find the detuned short position
     # Ae^(jphi-rot) = Acos(phi-rot) + jAsin(phi-rot)
 
-    real_shifted = np.abs(cplx) * np.cos(np.angle(cplx) - rotation)
-    imag_shifted = np.abs(cplx) * np.sin(np.angle(cplx) - rotation)
+    add_angle = 0
+    if rotation < 0:
+        add_angle = np.pi
+
+    real_shifted = np.abs(cplx) * np.cos(np.angle(cplx) - rotation + add_angle)
+    imag_shifted = np.abs(cplx) * np.sin(np.angle(cplx) - rotation + add_angle)
     cplx_shifted = np.vectorize(complex)(real_shifted, imag_shifted)
     # without multiplication with 50 ohm. so it is normalized
     impz_shifted = (1 + cplx_shifted) / (1 - cplx_shifted) * 50
