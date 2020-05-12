@@ -29,7 +29,6 @@ class MyTH1(uproot_methods.classes.TH1.Methods, list):
 
 
 def process(filename):
-    gROOT.Reset()
     filename_base = os.path.basename(filename)
     filename_wo_ext = os.path.splitext(filename)[0]
     ff, pp, units = tools.read_trace_xml(filename)
