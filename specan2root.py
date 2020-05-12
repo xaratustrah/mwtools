@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 read specan files and convert them to ROOT
+using PyROOT
 
 2020 Xaratustrah
 
