@@ -31,7 +31,7 @@ class MyTH1(uproot_methods.classes.TH1.Methods, list):
 def process(filename):
     filename_base = os.path.basename(filename)
     filename_wo_ext = os.path.splitext(filename)[0]
-    ff, pp, units = tools.read_trace_xml(filename)
+    ff, pp, units = tools.read_specan_xml(filename)
     h1f = MyTH1(ff[0], ff[-1], pp, title=filename_base)
     file = uproot.recreate(filename_wo_ext + '.root',
                            compression=uproot.ZLIB(4))
